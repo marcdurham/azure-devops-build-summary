@@ -26,4 +26,4 @@ $results = Get-BuildResults `
     -PersonalAccessToken $PersonalAccessToken
 
 $results | Get-BuildResultsFormatted | Sort-Object -Property StartUtc -Descending | Out-GridView
-# $results | Get-BuildResultsSummary 
+# $results | Get-BuildResultsSummary | Format-Table
