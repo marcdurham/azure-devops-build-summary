@@ -16,12 +16,13 @@ function Get-BuildResultsFormatted {
         $row = @{}
         $row.BuildNumber = $InputObject.Build.buildNumber;
         $row.Result = $InputObject.Build.result
-        $row.Branch = $InputObject.Build.sourceBranch
+        $row.Branch = $InputObject.Build.sourceBranch.Substring(11) # Trim refs/heads from branch
         $row.Commit = $InputObject.Build.sourceVersion
         
         $row.StartUtc = [System.TimeZoneInfo]::ConvertTimeToUtc($InputObject.Build.startTime)
         $row.StartLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($row.StartUtc, $tz)    
 
+        $row.Task = $InputObject.FirstRecord.name
         $row.Agent = $InputObject.FirstRecord.workerName
 
         if($InputObject.FirstIssueRecord) {
