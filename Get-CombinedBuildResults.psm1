@@ -53,12 +53,15 @@ function Get-CombinedBuildResults {
         # Keep records in order so the first record happened first
         $row.Records = $timeline.records | Sort-Object -Property order
 
-        $row.FirstRecord = $row.Records[0]
-
         ForEach ($record in $row.Records) {
             if($record.issues -and $record.issues.Count -gt 0) {
-                $row.FirstIssueRecord = $record
-                $row.FirstIssue = $record.issues[0] 
+                ForEach ($issue in $record.issues) {
+                    if($issue.type -eq "error") {
+                        $row.FirstErrorRecord = $record
+                        $row.FirstError = $issue
+                        break
+                    }
+                }
                 break
             }
         }
