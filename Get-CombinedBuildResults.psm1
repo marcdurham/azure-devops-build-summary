@@ -31,13 +31,13 @@ function Get-CombinedBuildResults {
 
     ForEach ($build in $builds) {
         $row = @{
-            Organization = $Organization;
-            Project = $Project;
-            Build = $build;
-            Records = @();
-            FirstRecord = @{};
-            FirstIssueRecord = @{};
-            FirstIssue = @{};
+            Organization = $Organization
+            Project = $Project
+            Build = $build
+            Records = @()
+            FirstRecord = @{}
+            FirstIssueRecord = @{}
+            FirstIssue = @{}
         }
         
         $timeline = Get-BuildTimeline `

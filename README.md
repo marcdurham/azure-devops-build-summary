@@ -12,7 +12,7 @@ You can see the Build Id *123456* at the end
 
 Get a Personal Access Token (PAT) from Azure DevOps and set it to an environment variable
 ````
-$Env::PAT = "PAST_YOUR_PAT_HERE"
+$Env:PAT = "PAST_YOUR_PAT_HERE"
 ````
 
 Run script
