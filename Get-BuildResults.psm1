@@ -34,10 +34,14 @@ function Get-BuildResults {
             continue
         }
 
-        $row.FirstRecord = $timeline.records[0]
+        # Timeline records must be in order to get the first record in the
+        # for loop below
+        $orderedRecords = $timeline.records | Sort-Object -Property order
 
-        ForEach ($record in $timeline.records) {       
-            if($record.issues) {
+        $row.FirstRecord = $orderedRecords[0]
+
+        ForEach ($record in $orderedRecords) {       
+            if($record.issues -and $record.issues.Count -gt 0) {
                 $row.FirstIssueRecord = $record
                 $row.FirstIssue = $record.issues[0] 
                 break

@@ -18,12 +18,19 @@ $ErrorActionPreference = "Stop"
 
 &"C:\Path\to\Scripts\Import-BuildResultsModules.ps1"
 
-$results = Get-BuildResults `
+$results = Get-CombinedBuildResults `
     -Definitions $Definitions `
     -MinTime $MinTime `
     -Project $Project `
     -Organization $Organization `
     -PersonalAccessToken $PersonalAccessToken
 
-$results | Get-BuildResultsFormatted | Sort-Object -Property StartUtc -Descending | Out-GridView
-# $results | Get-BuildResultsSummary | Format-Table
+# Print out to a GridView GUI
+$results `
+    | Merge-CombinedBuildResults `
+    | Select-Object BuildId, StartTime, Agent, Result, Task, Message `
+    | Sort-Object -Property StartTime -Descending `
+    | Out-GridView
+
+# Print out to the PowerShell console
+# $results | Merge-CombinedBuildResults | Format-Table
