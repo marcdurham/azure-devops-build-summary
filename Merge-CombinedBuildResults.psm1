@@ -3,7 +3,9 @@ function Merge-CombinedBuildResults {
     param (
         [Parameter(ValueFromPipeline = $true)]
         [PSCustomObject]
-        $InputObject
+        $InputObject,
+        [String]
+        $SpecificTaskName
     )
 
     begin {
@@ -59,6 +61,7 @@ function Merge-CombinedBuildResults {
             }
 
             # Set the first error message
+            $row.TaskDuration = ""
             if($InputObject.FirstError) {
                 # Only include the first line of the message if there are multiple
                 if($InputObject.FirstError.message -and $InputObject.FirstError.message.Contains("`n")) {
@@ -67,8 +70,57 @@ function Merge-CombinedBuildResults {
                 } else {
                     $row.Message = $InputObject.FirstError.message
                 }
+
+                if($InputObject.FirstErrorRecord.startTime -and $InputObject.FirstErrorRecord.finishTime) {
+                    $finishTime = [System.DateTime]$InputObject.FirstErrorRecord.finishTime
+                    $startTime = [System.DateTime]$InputObject.FirstErrorRecord.startTime
+                    $duration = $finishTime.Subtract($startTime)
+                    $row.TaskDuration = $duration.ToString("h\h\ m\m\ s\s")
+                }
             } else {
                 $row.Message = ""
+            }
+
+            # Find Specific Task
+            if(!$SpecificTaskName) {
+                $row.SpecificTaskName = ""
+                $row.SpecificTaskDuration = ""
+            } else {
+                $row.SpecificTaskName = $SpecificTaskName
+                ForEach ($record in $InputObject.Records) {
+                    if($record.name -eq $row.SpecificTaskName) {
+                        $specificTask = $record
+                        break
+                    }
+                }
+
+                if($row.Task -ne $row.SpecificTaskName -and $row.Result -eq "failed") {
+                    $row.Task = "Different issue"
+                }
+
+                # Set time duration for that specific task
+                $row.SpecificTaskDuration = ""
+                if($specificTask) {
+                    if($specificTask.startTime -and $specificTask.finishTime) {
+                        $finishTime = [System.DateTime]$specificTask.finishTime
+                        $startTime = [System.DateTime]$specificTask.startTime
+                        $duration = $finishTime.Subtract($startTime)
+                        $row.SpecificTaskDuration = $duration.ToString("h\h\ m\m\ s\s")
+                    } else {
+                        $row.SpecificTaskDuration = "Task exists"
+                    }
+                } else {
+                    $row.SpecificTaskDuration = "No task"
+                }
+            }
+            
+            # Duration of entire build
+            $row.BuildDuration = ""
+            if($InputObject.Build.startTime -and $InputObject.Build.finishTime) {
+                $finishTime = [System.DateTime]$InputObject.Build.finishTime
+                $startTime = [System.DateTime]$InputObject.Build.startTime
+                $duration = $finishTime.Subtract($startTime)
+                $row.BuildDuration = $duration.ToString("h\h\ m\m\ s\s")
             }
 
             $table += $row
